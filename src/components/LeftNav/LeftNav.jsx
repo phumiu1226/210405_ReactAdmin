@@ -4,11 +4,14 @@ import logo from '../../assets/images/logo.png'
 import { Link, withRouter } from 'react-router-dom'
 //menu style from antd
 import { Menu } from 'antd';
-import memoryUtils from '../../utils/memoryUtils'
+// import memoryUtils from '../../utils/memoryUtils'
 //menuList
-import menuList from '../../config/menuConfig';
-//pubsub-js send data
-import PubSub from 'pubsub-js'
+import menuList from '../../config/menuConfig'
+//pubsub-js send data ---不用了 现在用redux来代替
+// import PubSub from 'pubsub-js' 
+
+import { connect } from 'react-redux'  //这个是react-redux容器
+import { setHeadTitle } from '../../redux/actions'
 
 const { SubMenu } = Menu;
 
@@ -22,8 +25,7 @@ class LeftNav extends Component {
     }
 
     // 根据menu的数据数组 生成对象的标签数组
-
-    //使用map来获取nodes
+    //#region  使用map来获取nodes
     getMenuNodes_map = (menuList) => {
         return menuList.map(item => {
             /*
@@ -54,12 +56,15 @@ class LeftNav extends Component {
 
         })
     }
+    //#endregion
 
     //判断当前登录用户对item是否有权限
     hasAuth = (item) => {
         const { key, isPublic } = item;
-        const menus = memoryUtils.user.role.menus;
-        const username = memoryUtils.user.username;
+        // const menus = memoryUtils.user.role.menus;
+        // const username = memoryUtils.user.username;
+        const menus = this.props.user.role.menus;
+        const username = this.props.user.username;
         //1.如果当前用户是admin
         //2.如果当前item是公开的
         //3.当前用户有此item的权限 ： key有没有menus中
@@ -84,6 +89,13 @@ class LeftNav extends Component {
             if (this.hasAuth(item)) {
                 //向pre添加 <Menu.Item>
                 if (!item.children) {
+
+                    //判断item是否当前对应的item  ------------ 这里是在处理 leftNav选择的时候 点击F5刷新页面 ，redux的headTitle还是 ‘首页’ 的问题
+                    if (item.key === path || path.indexOf(item.key) === 0) {
+                        //更新redux的headTitle
+                        this.props.setHeadTitle(item.title);
+                    }
+
                     pre.push((
                         // handleClick 每次点击传递title给header
                         <Menu.Item key={item.key} icon={item.icon} onClick={(e) => {
@@ -116,8 +128,9 @@ class LeftNav extends Component {
 
     onHandleClick = (title) => {
         //send title to Header (Header need item title to show)
-        //使用订阅来send
-        PubSub.publish('menuTitle', title);
+        //使用订阅来send ---不用了 现在用redux来代替
+        // PubSub.publish('menuTitle', title);
+        this.props.setHeadTitle(title);
     }
 
     UNSAFE_componentWillMount() {
@@ -216,4 +229,7 @@ class LeftNav extends Component {
     新的组件 向 非路由组件传递 3个属性 ： history / location / match
 */
 
-export default withRouter(LeftNav);
+export default connect(
+    state => ({ user: state.user }),
+    { setHeadTitle }
+)(withRouter(LeftNav));

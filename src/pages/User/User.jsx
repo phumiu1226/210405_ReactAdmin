@@ -205,7 +205,7 @@ export default class User extends Component {
                         okText="提交"
                         cancelText="取消"
                         visible={isModalStatus === 1}
-                        onOk={this.handleModalOk} onCancel={() => { this.setState({ isModalStatus: 0 }) }}
+                        onOk={this.handleModalOk} onCancel={() => { this.setState({ isModalStatus: 0 }); this.user = null; }}
                         destroyOnClose
                     >
                         {/* 这里的setform 等于 AuthForm didMount的时候 把它的form传到这里来 ， 我们会有this.form来使用 */}

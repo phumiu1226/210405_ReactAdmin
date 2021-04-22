@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import memoryUtils from '../../utils/memoryUtils'
+// import memoryUtils from '../../utils/memoryUtils'
 import { Redirect, Route, Switch } from 'react-router-dom' //路由配置
 import { Layout } from 'antd';
 
@@ -17,13 +17,18 @@ import Bar from '../Charts/Bar'
 import Line from '../Charts/Line'
 import Pie from '../Charts/Pie'
 import Test from '../Test/Test'
+import ErrorPage from '../ErrorPage/ErrorPage'
+
+//redux
+import { connect } from 'react-redux'
 
 const { Footer, Sider, Content } = Layout;
 
-export default class Admin extends Component {
+class Admin extends Component {
     render() {
 
-        const user = memoryUtils.user;
+        // const user = memoryUtils.user; // ----- 不用了 现在用redux来代替
+        const user = this.props.user
         //如果内存没有储存user => 当前没有登录
         if (!user._id) {
             //自动跳转到登录页面
@@ -40,6 +45,7 @@ export default class Admin extends Component {
                     {/* 配置路由 */}
                     <Content style={{ margin: '20px', backgroundColor: 'white' }}>
                         <Switch>
+                            <Redirect exact={true} from='/' to='/home' />
                             <Route path='/home' component={Home} />
                             <Route path='/category' component={Category} />
                             <Route path='/product' component={Product} />
@@ -49,7 +55,7 @@ export default class Admin extends Component {
                             <Route path='/line' component={Line} />
                             <Route path='/pie' component={Pie} />
                             <Route path='/test' component={Test} />
-                            <Redirect to='/home' />
+                            <Route component={ErrorPage} />
                         </Switch>
 
                     </Content>
@@ -60,3 +66,9 @@ export default class Admin extends Component {
         )
     }
 }
+
+
+export default connect(
+    state => ({ user: state.user }),
+    {}
+)(Admin);

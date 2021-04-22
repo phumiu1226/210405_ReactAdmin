@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
 import './Login.less'
 import logo from '../../assets/images/logo.png'
-import { Form, Input, Button, message } from 'antd';
+import { Form, Input, Button } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { reqLogin } from '../../api'
-import memoryUtils from '../../utils/memoryUtils'
-import storageUtils from '../../utils/storageUtils'
+// import { reqLogin } from '../../api'
+// import memoryUtils from '../../utils/memoryUtils'
+// import storageUtils from '../../utils/storageUtils'
 import { Redirect } from 'react-router-dom'
-import Loading from '../../components/Loading/Loading'
+import { connect } from 'react-redux'
+import { login } from '../../redux/actions'
 /*
 1.前台表单验证
     用户名/密码的合法性要求
@@ -19,18 +20,20 @@ import Loading from '../../components/Loading/Loading'
 */
 
 
-export default class Login extends Component {
+class Login extends Component {
 
     state = {
-        loading :false
+        loading: false
     }
 
     //form校验成功后执行
     onFinish = async (values) => {
         //提交ajax请求  请求登录
-        this.setState({loading:true})
         // console.log('Success:', values);
         const { username, password } = values;
+        this.props.login(username, password) //redux
+        /*
+        //#region  发请求和接受数据 --这里已用redux代替
         const rs = await reqLogin(username, password);
         this.setState({loading:false})
         if (rs.status === 0) {
@@ -44,6 +47,8 @@ export default class Login extends Component {
         } else {
             message.error(rs.msg);
         }
+        //#endregion
+        */
 
     }
     //form校验失败后执行
@@ -66,10 +71,10 @@ export default class Login extends Component {
 
     render() {
 
-        if(this.state.loading===true) return <Loading />
-
         //如果用户已经登录，自动跳转到管理页面去
-        const user = memoryUtils.user;
+        // const user = memoryUtils.user; // ----- 不用了 现在用redux来代替
+        const user = this.props.user;
+
         if (user._id) {
             return <Redirect to='/' />
         }
@@ -88,7 +93,7 @@ export default class Login extends Component {
                             onFinish={this.onFinish} //校验成功后执行
                             onFinishFailed={this.onFinishFailed} //校验失败后执行
                             name="normal_login" className="login-form"
-                            initialValues={{ username: 'admin' }} //默认值 随着 Form.Item 里的 name
+                            initialValues={{ username: 'admin' }}//默认值 随着 Form.Item 里的 name
                         >
 
                             <Form.Item
@@ -134,3 +139,7 @@ export default class Login extends Component {
 
 
 
+export default connect(
+    state => ({ user: state.user }),
+    { login }
+)(Login)
