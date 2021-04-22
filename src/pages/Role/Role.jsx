@@ -11,14 +11,17 @@ import { PAGE_SIZE } from '../../utils/constants'
 import { reqRoles, reqAddRole, reqUpdateRole } from '../../api'
 import AddForm from './AddForm'
 import AuthForm from './AuthForm'
-import memoryUtils from '../../utils/memoryUtils'
-import storageUtils from '../../utils/storageUtils'
+// import memoryUtils from '../../utils/memoryUtils'
+// import storageUtils from '../../utils/storageUtils'
 import { dateFormatter } from '../../utils/dateUtils'
+
+import { connect } from 'react-redux'
+import { logout } from '../../redux/actions'
 
 // 角色管理路由
 
 
-export default class Role extends Component {
+class Role extends Component {
 
     //-------------------------初始化--------------------------------
     state = {
@@ -142,15 +145,18 @@ export default class Role extends Component {
         const { role } = this.state;
         role.menus = this.checkedRoles;
         role.auth_time = Date.now();
-        role.auth_name = memoryUtils.user.username;
+        // role.auth_name = memoryUtils.user.username;
+        role.auth_name = this.props.user.username;
 
         const rs = await reqUpdateRole(role);
         if (rs.status === 0) {
             //如果当前更新的是自己角色的的权限，就强制退出
-            if (role._id === memoryUtils.user.role_id) {
-                memoryUtils.user = {};
-                storageUtils.removeUser();
-                this.props.history.replace('/login');
+            if (role._id === this.props.user.role_id) {
+                // memoryUtils.user = {};
+                // storageUtils.removeUser();
+                // this.props.history.replace('/login');
+                this.props.logout();
+
                 message.success('当前用户角色权限修改了，请重新登录');
             } else {
                 //do van de con tro, nen o day da~ roles va role o state da update san~
@@ -233,3 +239,7 @@ export default class Role extends Component {
 
 
 
+export default connect(
+    state => ({ user: state.user }),
+    { logout }
+)(Role);

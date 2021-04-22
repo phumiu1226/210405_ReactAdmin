@@ -1,0 +1,37 @@
+.home-container{
+    display:flex;
+    width: 100%;
+    flex-wrap: wrap;
+    .home-left{
+        flex: 0 0 30%;
+        padding-right: 10px;
+        padding:10px;
+    }
+    .home-right{
+        flex: 0 0 70%;
+        padding:10px;
+    }
+    .home-content{
+        flex:0 0 100%;
+        padding:10px;
+        .home-content-title{
+            margin-right:20px;
+            font-size: 20px;
+            display: inline-block;
+            cursor:pointer;
+        }
+        .home-content-title.active{
+            color : #1DA57A;
+            border-bottom: 2px solid  #1DA57A;
+        }
+        .home-content-container{
+            display:flex;
+            .home-content-left{
+                flex:0 0 60%;
+            }
+            .home-content-right{
+                flex:0 0 40%;
+            }
+        }
+    }
+}
